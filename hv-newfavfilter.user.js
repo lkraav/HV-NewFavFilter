@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name           HV-NewFavFilter
+// @name           HV-NewFavFilter 1.0
 // @namespace      http://github.com/lkraav/HV-NewFavFilter/
 // @description    Filtreerib ainult uute postitustega foorumid ja threadid lemmikute lehel
 // @include        http://foorum.hinnavaatlus.ee/favorites.php
@@ -47,18 +47,28 @@ if (foorumiTables) {
 			var forumlinkRowSnapshot = xpath(".//span[@class='forumlink']", thisRow);
 
 			if (forumlinkRowSnapshot.snapshotLength) {			// nüüd uurime kas on foorumi nime sisaldav rida?
-				newmsgRow = thisRow.nextSibling;			// http://v3.thewatchmakerproject.com/journal/329/finding-html-elements-using-javascript-nextsibling-and-previoussibling
-				while(newmsgRow.innerHTML == null)			// seda on meil vaja, sest nextSibling võib meile lihtsalt mingit whitespace
-				{							// teksti ka anda. seetõttu kammime niikaua kuni järgmine TR vastu ikkagi tuleb
-					newmsgRow = newmsgRow.nextSibling;
+				newmsgRow = thisRow.nextSibling;
+
+				while(newmsgRow.innerHTML == null)			// http://v3.thewatchmakerproject.com/journal/329/finding-html-elements-using-javascript-nextsibling-and-previoussibling
+				{							// seda on meil vaja, sest nextSibling võib meile lihtsalt mingit whitespace teksti ka anda. seetõttu kammime niikaua kuni järgmine TR vastu ikkagi tuleb
+					if (newmsgRow.nextSibling) {			// võimalik, et materjal sai otsa (http://github.com/lkraav/HV-NewFavFilter/issues/#issue/1)
+						newmsgRow = newmsgRow.nextSibling;
+					}
+					else {
+						thisRow.parentNode.removeChild(thisRow);
+						return;
+					}
 				}
-				
+	
 				var newmsgRowSnapshot = xpath(".//img[@alt='uued postitused']", newmsgRow);
 
 				if (!newmsgRowSnapshot.snapshotLength) {		// siin alamfoorumis pole ühtegi uut postitust, seega paberhunti
 					thisRow.parentNode.removeChild(thisRow);
 				}
+
 			}
 		}
 	}
 }
+
+
